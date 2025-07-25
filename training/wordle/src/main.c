@@ -12,13 +12,17 @@
 
 /* IMPORTS */
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
+#include <ctype.h>
+#include <string.h>
 
 /* DATA */
 
 struct termios orig_termios;
-char *input;
+char input[6] = {0};
 /* WORDLE */
 
 void disableRawMode()
@@ -26,7 +30,7 @@ void disableRawMode()
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
 }
 
-void enable_raw_mode()
+void enableRawMode()
 {
     tcgetattr(STDIN_FILENO, &orig_termios);
     atexit(disableRawMode);
@@ -35,28 +39,54 @@ void enable_raw_mode()
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
 
-void parse_wordlist()
+void parseWordlist()
 {
 }
 
 void wordle()
 {
+
 }
 
 int main()
 {
+    
     enableRawMode();
     char c;
     while (read(STDIN_FILENO, &c, 1) == 1)
     {
-        if (iscntrl(c) && c == 'c')
+        switch (c)
         {
-            exit(0);
+        // backspace
+        case 127:
+            if (strlen(input) > 0)
+            {
+                input[strlen(input) - 1] = '\0';
+            }
+            printf("%s\n", input);
+
+            break;
+
+        case 'c':
+            if (iscntrl(c))
+            {
+                exit(0);
+                break;
+            }
+        default:
+            if (
+                (c >= 'A' && c <= 'Z') ||
+                (c >= 'a' && c <= 'z'))
+            {
+                if (strlen(input) < 5)
+                {
+                    input[strlen(input)] = (c >= 'a' && c <= 'z') ? (c - 'a') + 'A' : c;
+                    input[strlen(input) + 1] = '\0';
+                }
+                printf("%s\n", input);
+            }
         }
-        else
-        {
-            printf("%d ('%c')\n", c, c);
-        }
+        wordle();
     }
 
     return 0;
