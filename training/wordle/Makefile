@@ -5,7 +5,7 @@ SRCDIR = src
 
 all: $(TARGET)
 
-$(TARGET): $(SRCDIR)/main.c
+$(TARGET):
 	$(CC) $(CFLAGS) $(SRCDIR)/main.c -o $(TARGET) 
 
 clean: 
