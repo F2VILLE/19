@@ -28,7 +28,6 @@ struct termios orig_termios;
 char guessword[6] = {0}; 
 char input[6] = {0};
 int tries = 0;
-char correct_letters[6] = {0};
 
 /* WORDLE */
 
