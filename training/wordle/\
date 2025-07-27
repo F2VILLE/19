@@ -65,7 +65,7 @@ void getRandomWord()
     if (i == t) {
       for (int j = 0; j < 5; j++)
       {
-        guessword[j] = (line[j] - 'a') + 'A';
+        guessword[j] = line[j];
       }
       guessword[6] = '\0';
       break;
@@ -76,70 +76,30 @@ void getRandomWord()
 
 void wordle()
 {
-  char output[256] = {0};
-  char lettersleft[6] = {0};
-  strcpy(lettersleft, guessword);
-  gotoxy(2, 5);
-  int pos = 0;
+  char *output = "";
   for (int i = 0; i < 5; i++)
   {
-    gotoxy(2, 12+i);
-    bool available = false;
-    for (int j = 0; j<5; j++)
-    {
-      if (input[i] == lettersleft[j])
-      {
-        available = true;
-        lettersleft[j] = '-';
-      }
-    }
-
-    if (!available) {
-      pos += sprintf(output + pos, "\033[0m%c", input[i]);
-      continue;
-    }
-
     if (input[i] == guessword[i]) {
-      pos += sprintf(output + pos, "\033[92m%c\033[0m", input[i]);
+      strcat(output, "\033]96m");
     } else
     {
-      bool found = false;
       for (int j = 0; j < 5; j++)
       {
         if (input[i] == guessword[j]) {
-          pos += sprintf(output + pos, "\033[93m%c\033[0m", input[i]);
-          found = true;
+          strcat(output, "\033]92m");
           break;
         }
       }
-      if (!found)
-      {
-        pos += sprintf(output + pos, "\033[0m%c", input[i]);
-      } 
     }
 
+    //strcat(output, guessword[i]);
+    output[strlen(output)] = guessword[i];
+
+    strcat(output, "\033]0m");
   }
   gotoxy(0, tries + 2);
   printf("%d] %s             \n", tries+1, output);
   tries++;
-  bool win = true;
-  for (int i = 0; i < 5; i++)
-  {
-    if (input[i] != guessword[i]) win = false;
-  }
-
-  if (win) {
-    gotoxy(1, 7);
-    printf("Congrats! You guessed the workd '%s' in %d tries\n", guessword, tries);
-    exit(0);
-  }
-
-  if (tries == 5) {
-    gotoxy(1, 7);
-    printf("You lose! The word was '%s'\n", guessword);
-    exit(1);
-  }
-  bzero(input, 6);
 }
 
 int main()
@@ -148,13 +108,12 @@ int main()
     getRandomWord();
 
     clear();
-    printf("\033[96mWelcome to WORDLE\033[0m (press ENTER to start)\n");
-    gotoxy(2, 15);
-    printf("\033[92mLetter in word and in the right position");
-    gotoxy(2, 16);
-    printf("\033[93mLetter in word but wrong position\033[0m");
+    printf("Welcome to WORDLE %s\n", guessword);
     gotoxy(0,2);
-    enableRawMode();     
+    enableRawMode();
+  
+     
+ //   printf("choosed word %s\n", guessword);
 
     char c;
     while (read(STDIN_FILENO, &c, 1) == 1)
@@ -167,6 +126,7 @@ int main()
             {
                 input[strlen(input) - 1] = '\0';
             }
+//            printf("%s\n", input);
             break;
         case 10: // enter
           if (strlen(input) >= 5) {
